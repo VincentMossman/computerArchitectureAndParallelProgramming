@@ -25,6 +25,10 @@
 #define BG_G 255
 #define BG_B 0
 
+#define MAX_PRODUCER_SLEEP 10
+#define MAX_CONSUMER_SLEEP 5
+#define MAX_DURATION 100
+
 
 typedef struct {
   int width;
@@ -35,6 +39,10 @@ typedef struct {
   unsigned char ** g;
   unsigned char ** b;
 } PICTURE;
+
+// Global variables
+int nextFrameNumber = 0;
+int consumedCount = 0;
 
 // Global Bounded Buffer
 PICTURE buffer[SIZE];
@@ -57,28 +65,96 @@ void chromakey(PICTURE picture, PICTURE bgPicture);
 void  *producerWork(void *);
 void  *consumerWork(void *);
 void bufferAdd(PICTURE);
-int bufferRemove();
+PICTURE bufferRemove();
 
 
 int main(int argc, char * argv[]) {
+
+  pthread_mutex_init(&lock, NULL);
+  pthread_cond_init(&nonFull, NULL);
+  pthread_cond_init(&nonEmpty, NULL);
+
+  pthread_t threadProdHandle[64];
+  pthread_attr_t attrProd[64];
+  pthread_t threadConHandle[64];
+  pthread_attr_t attrCon[64];
+
+  int i,numberOfProducerThreads,numberOfConsumerThreads;
+
+  if (argc != 3) {
+    printf("usage: %s <integer number of producter and consumer threads>\n",
+     argv[0]);
+    exit(1);
+  } // end if
+
+  sscanf(argv[1], "%d", &numberOfProducerThreads);
+  sscanf(argv[2], "%d", &numberOfConsumerThreads);
+
   PICTURE bgPicture;
+
+  bgPicture = readPicture("swans.ppm",0);
+
+  for (i=0; i < numberOfProducerThreads; i++) {
+    pthread_attr_init(&attrProd[i]);
+    pthread_attr_setscope(&attrProd[i], PTHREAD_SCOPE_SYSTEM);
+    // create producer threads
+    pthread_create(&threadProdHandle[i], &attrProd[i], producerWork, &i);
+  } // end for
+
+  for (i=0; i < numberOfConsumerThreads; i++) {
+    pthread_attr_init(&attrCon[i]);
+    pthread_attr_setscope(&attrCon[i], PTHREAD_SCOPE_SYSTEM);
+    // create consumer threads
+    pthread_create(&threadConHandle[i], &attrCon[i], consumerWork, &i);
+  } // end for
+
+  for (i=0; i < numberOfProducerThreads; i++) {
+    pthread_join(threadProdHandle[i], (void **) NULL);
+  } // end for
+  for (i=0; i < numberOfConsumerThreads; i++) {
+    pthread_join(threadConHandle[i], (void **) NULL);
+  } // end for
+  //printf("After join in main!\n");
+
+} // end main
+
+void  *producerWork(void * args) {
+
+  PICTURE bgPicture = readPicture("swans.ppm",0);
   PICTURE fgPicture;
   int frameNumber;
   char * fileName;
 
-  bgPicture = readPicture("swans.ppm",0);
+  while (nextFrameNumber < MAX_FRAME) {
+    pthread_mutex_lock(&lock);
+    nextFrameNumber++;
+    frameNumber = nextFrameNumber;
+    pthread_mutex_unlock(&lock);
 
-  for (frameNumber = 1; frameNumber <= MAX_FRAME; frameNumber++) {
     fileName = generateFileName("nessie",frameNumber,".ppm");
-    fgPicture = readPicture(fileName, frameNumber);
+    bufferAdd(readPicture(fileName,frameNumber));
+  }
+
+} // end producerWork
+
+void  *consumerWork(void * args) {
+
+  PICTURE bgPicture = readPicture("swans.ppm",0);
+  PICTURE fgPicture;
+  char * fileName;
+
+  while (consumedCount < MAX_FRAME) {
+    pthread_mutex_lock(&lock);
+    consumedCount++;
+    pthread_mutex_unlock(&lock);
+
+    fgPicture = bufferRemove();
     chromakey(fgPicture, bgPicture);
-    fileName = generateFileName("frame",frameNumber,".ppm");
+    fileName = generateFileName("frame",consumedCount,".ppm");
     writePicture(fgPicture, fileName);
-  } // end for
+  } // end while
 
-} // end main
-
-
+} // end consumerWork
 
 char * generateFileName(char * baseStr, int frameNumber, char * extStr) {
   int length;
@@ -160,8 +236,6 @@ void chromakey(PICTURE picture, PICTURE bgPicture) {
 
   } // end for(row...
 
-
-
 } // end chromakey
 
 
@@ -233,3 +307,38 @@ void writePicture(PICTURE picture, char * fileName) {
   free2DArray(picture.b, picture.height, picture.width);
 
 } // end writePicture
+
+void bufferAdd(PICTURE item) {
+
+  pthread_mutex_lock(&lock);
+  while(count == SIZE) {
+    while(pthread_cond_wait(&nonFull, &lock) != 0);
+  } // end while
+  if (count == 0) {
+    front = 0;
+    rear = 0;
+  } else {
+    rear = (rear + 1) % SIZE;
+  } // end if
+  buffer[rear] = item;
+  count++;
+  pthread_cond_signal(&nonEmpty);
+  pthread_mutex_unlock(&lock);
+
+} // end bufferAdd
+
+PICTURE bufferRemove() {
+  PICTURE returnValue;
+
+  pthread_mutex_lock(&lock);
+  while(count == 0) {
+    while(pthread_cond_wait(&nonEmpty, &lock) != 0);
+  } // end while
+  returnValue = buffer[front];
+  front = (front + 1) % SIZE;
+  count--;
+  pthread_cond_signal(&nonFull);
+  pthread_mutex_unlock(&lock);
+  return returnValue;
+
+} // end bufferRemove

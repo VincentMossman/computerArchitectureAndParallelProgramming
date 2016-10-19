@@ -38,10 +38,10 @@ int main(int argc, char * argv[]) {
   pthread_cond_init(&nonEmpty, NULL);
 
   pthread_t threadHandle[64];
-  pthread_attr_t attr[64];  // One might be enough???      
+  pthread_attr_t attr[64];  // One might be enough???
 
   int i,numberOfThreads;
-  
+
   if (argc != 2) {
     printf("usage: %s <integer number of producter and consumer threads>\n",
 	   argv[0]);
@@ -49,9 +49,9 @@ int main(int argc, char * argv[]) {
   } // end if
 
   sscanf(argv[1], "%d", &numberOfThreads);
-  
+
   srand(5);
-  
+
   for (i=0; i < numberOfThreads; i++) {
     pthread_attr_init(&attr[i]);
     pthread_attr_setscope(&attr[i], PTHREAD_SCOPE_SYSTEM);
@@ -62,21 +62,21 @@ int main(int argc, char * argv[]) {
       pthread_create(&threadHandle[i], &attr[i], consumerWork, &i);
     } // end if
   } // end for
-    
+
     for (i=0; i < numberOfThreads; i++) {
       pthread_join(threadHandle[i], (void **) NULL);
     } // end for
     printf("After join in main!\n");
-    
+
 } // end main
 
 
 void  *producerWork(void * args) {
-  
+
   int threadId;
   int counter = 0;
   unsigned int sleepAmt;
- 
+
   threadId = *((int *) args);
 
   while (counter < MAX_DURATION) {
@@ -87,16 +87,16 @@ void  *producerWork(void * args) {
     printf("Producer added\n");
     counter++;
   } // end while
-  
+
 
 } // end producerWork
 
 void  *consumerWork(void * args) {
-  
+
   int threadId;
   int counter = 0;
   unsigned int sleepAmt;
- 
+
   threadId = *((int *) args);
 
   while (counter < MAX_DURATION) {
@@ -107,7 +107,6 @@ void  *consumerWork(void * args) {
     printf("Consumer removed\n");
     counter++;
   } // end while
-  
 
 } // end consumerWork
 
@@ -146,5 +145,3 @@ int bufferRemove() {
   return returnValue;
 
 } // end bufferRemove
-
-
