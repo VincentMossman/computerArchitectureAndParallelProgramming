@@ -1,0 +1,6 @@
+Script started on Thu 08 Sep 2016 06:35:33 PM CDT
+mossmanv@arundel:~/lab3$ ./reverseString Today is a good day to learn C
+C learn to day good a is Today 
+mossmanv@arundel:~/lab3$ exit
+
+Script done on Thu 08 Sep 2016 06:35:46 PM CDT

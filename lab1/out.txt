@@ -1,0 +1,8 @@
+Script started on Tue 23 Aug 2016 03:25:02 PM CDT
+mossmanv@arundel:~/lab1$ ./age
+Enter your name: Vincent
+Enter your age: 21
+Vincent your age is 21.
+mossmanv@arundel:~/lab1$ exit
+
+Script done on Tue 23 Aug 2016 03:25:19 PM CDT
