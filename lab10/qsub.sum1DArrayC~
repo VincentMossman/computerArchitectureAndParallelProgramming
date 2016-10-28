@@ -1,0 +1,13 @@
+#!/bin/bash
+#PBS -N mpi
+#PBS -l nodes=4:ppn=1
+#PBS -l cput=5:00
+##PBS -m be
+#
+echo "-"
+NUMPROC=`wc -l ${PBS_NODEFILE} | awk '{print $1}'`
+#
+# Put the full pathname to the executable below
+time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayc 1025
+
+#time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayB 1025

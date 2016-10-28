@@ -1,0 +1,10 @@
+-
+myID 3
+length = 1039
+myID 0
+myID 1
+myID 2
+Time to sum 1039 floats with MPI in parallel  0.00479 seconds
+Time to sum 1039 floats sequentially  0.00000 seconds
+The parallel sum:   507.338137
+The sequential sum: 507.338137

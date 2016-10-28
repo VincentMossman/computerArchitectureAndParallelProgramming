@@ -1,0 +1,17 @@
+#!/bin/bash
+#PBS -N mpi
+#PBS -l nodes=8:ppn=2
+#PBS -l cput=5:00
+##PBS -m be
+#
+echo "-"
+NUMPROC=`wc -l ${PBS_NODEFILE} | awk '{print $1}'`
+#
+# Put the full pathname to the executable below
+time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayA 1024
+
+#COMMENT OUT ABOVE COMMAND AND UNCOMMENT BELOW FOR BIGGER 1D ARRAY
+#time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayA 1048576
+
+#Later you will want to run with array size of 1025
+#time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayA 1025
