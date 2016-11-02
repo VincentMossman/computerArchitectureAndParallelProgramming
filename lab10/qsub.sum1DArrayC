@@ -10,4 +10,4 @@ NUMPROC=`wc -l ${PBS_NODEFILE} | awk '{print $1}'`
 # Put the full pathname to the executable below
 time mpiexec -np ${NUMPROC} /home/mossmanv/lab10/sum1DarrayC 1039
 
-#time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayB 1025
+#time mpiexec -np ${NUMPROC} /home/mossmanv/lab10/sum1DarrayB 1025

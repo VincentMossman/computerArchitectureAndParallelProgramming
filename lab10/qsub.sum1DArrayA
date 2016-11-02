@@ -11,7 +11,7 @@ NUMPROC=`wc -l ${PBS_NODEFILE} | awk '{print $1}'`
 time mpiexec -np ${NUMPROC} /home/mossmanv/lab10/sum1DArrayA 1024
 
 #COMMENT OUT ABOVE COMMAND AND UNCOMMENT BELOW FOR BIGGER 1D ARRAY
-#time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayA 1048576
+#time mpiexec -np ${NUMPROC} /home/mossmanv/lab10/sum1DArrayA 1048576
 
 #Later you will want to run with array size of 1025
-#time mpiexec -np ${NUMPROC} /home/fienup/lab10/sum1DArrayA 1025
+#time mpiexec -np ${NUMPROC} /home/mossmanv/lab10/sum1DArrayA 1025

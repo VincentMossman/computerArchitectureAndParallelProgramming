@@ -1,4 +1,5 @@
-/*  File: sum1DArray.c
+/*  Edited by: Vincent T. Mossman
+ *  File: sum1DArray.c
  *  Compile as:  mpicc -o sum1DArrayB -O3 sum1DArrayB.c
  *  Description:  An MPI solution to sum a 1D array.
  *  Uses group communications:

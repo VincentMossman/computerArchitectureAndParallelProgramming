@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -N mpi
+#PBS -l nodes=2:ppn=2
+#PBS -l cput=5:00
+##PBS -m be
+#
+echo "-"
+NUMPROC=`wc -l ${PBS_NODEFILE} | awk '{print $1}'`
+#
+# Put the full pathname to the executable below
+time mpiexec -np ${NUMPROC} /home/mossmanv/hw10/hw10 /home/mossmanv/hw10 swans.ppm nessie 99
